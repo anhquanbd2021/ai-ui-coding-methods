@@ -1,0 +1,14 @@
+{
+  "id": "settings-page",
+  "title": "Account settings",
+  "brief": "Settings page with a page header, a profile card with a save button, a preferences field, and a danger zone with a delete button.",
+  "elements": [
+    { "id": "title", "type": "heading", "slot": "header", "label": "Account settings" },
+    { "id": "profile-card", "type": "card", "slot": "main", "label": "Profile" },
+    { "id": "save", "type": "button", "slot": "main", "label": "Save changes", "intent": "primary" },
+    { "id": "digest", "type": "field", "slot": "aside", "label": "Email digest" },
+    { "id": "danger-note", "type": "text", "slot": "footer", "label": "Deleting your account is permanent." },
+    { "id": "delete", "type": "button", "slot": "footer", "label": "Delete account", "intent": "danger" }
+  ],
+  "wireframe": { "slotOrder": ["header", "main", "aside", "footer"] }
+}

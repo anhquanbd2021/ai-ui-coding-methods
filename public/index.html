@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Run the same UI request through seven AI input modes and measure the fidelity jump — tokens, a11y, layout, verify loops, and regression diffs.">
+  <title>Prompt-Mode Lab — how input mode decides UI fidelity</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;family=Space+Grotesk:wght@400;600;700&amp;display=swap">
+  <link rel="stylesheet" href="/styles.css">
+<!-- pb-shell --><link rel="stylesheet" href="./pb-shell.css"><!-- pb-shell --><!-- pb-back --><link rel="stylesheet" href="./pb-back.css"><!-- pb-back --></head>
+<body>
+<main>
+  <nav aria-label="Primary"><a aria-current="page" href="/">Lab</a><a href="/guide.html">Guide</a><a href="https://github.com/anhquanbd2021/ai-ui-coding-methods">Source</a></nav>
+  <header class="hero">
+    <div><p class="eyebrow">Prompt-Mode Lab · 7 input modes</p><h1>The model isn't the variable. The input is.</h1><p class="lede">Same request, same mock generator — only the input mode changes. Watch the fidelity jump: a bare text brief invents everything; a screenshot copies structure but loses the system; tokens and component libraries pin the output on-system; a verify loop repairs what's left.</p></div>
+    <p class="warning"><strong>Safe educational demo.</strong> The generator is a deterministic simulation, not a real model — it exists so the scoring axes are measurable and reproducible. Everything runs locally; nothing is uploaded.</p>
+  </header>
+
+  <section class="workspace" aria-label="Mode lab">
+    <section class="panel controls" aria-labelledby="picker-title">
+      <div><p class="eyebrow">Mode lab</p><h2 id="picker-title">Pick an input mode</h2></div>
+      <label for="fixture">UI request<select id="fixture"></select></label>
+      <div id="modes" class="modes" role="group" aria-label="Input modes"></div>
+      <button id="run" type="button" class="primary">Generate + score</button>
+      <p class="muted">Seeded generator — same seed, same output. Scores: <code>tokens</code> (on-system values), <code>a11y</code> (AA contrast, min font, hit targets), <code>layout</code> (structure vs request).</p>
+    </section>
+
+    <section class="panel" aria-labelledby="output-title">
+      <div class="section-heading"><div><p class="eyebrow">Generated spec</p><h2 id="output-title">What the mode produced</h2></div><span id="overall" class="badge" role="status" aria-live="polite">Ready</span></div>
+      <div id="scorebars" class="scores" aria-label="Scores"></div>
+      <ul id="spec" class="spec-list" aria-label="Generated element spec"></ul>
+      <div id="failures" class="fails" aria-label="Accessibility failures"></div>
+    </section>
+  </section>
+
+  <section class="workspace" aria-label="All modes side by side">
+    <section class="panel" aria-labelledby="side-title">
+      <div class="section-heading"><div><p class="eyebrow">Side-by-side</p><h2 id="side-title">Every mode, one request</h2></div><button id="run-all" type="button" class="primary" style="width:auto">Run all</button></div>
+      <div class="table-wrap"><table id="side-table" aria-label="Score comparison by mode">
+        <thead><tr><th>Mode</th><th>Tokens</th><th>A11y</th><th>Layout</th><th>Overall</th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+    </section>
+
+    <section class="panel" aria-labelledby="verify-title">
+      <div class="section-heading"><div><p class="eyebrow">Process modes</p><h2 id="verify-title">Verify loop + diff check</h2></div><button id="run-verify" type="button" class="primary" style="width:auto">Run verify</button></div>
+      <ol id="history" class="history" aria-label="Verify loop history"></ol>
+      <p class="muted">The loop starts from a text-mode spec, scores it, fixes the worst axis, and re-scores — the browser-verify pattern in miniature.</p>
+      <div class="section-heading"><div><p class="eyebrow">Regression</p><h2>Screenshot-diff check</h2></div><button id="run-diff" type="button" class="primary" style="width:auto">Run diff</button></div>
+      <p class="muted">Re-generates the approved <code>settings-page</code> baseline after a simulated model update that drifts two elements.</p>
+      <ul id="drifts" class="drifts" aria-label="Drift report"></ul>
+    </section>
+  </section>
+
+  <p><a href="/guide.html">When to use which mode</a> · <a href="https://github.com/anhquanbd2021/ai-ui-coding-methods">Inspect source and tests</a></p>
+</main>
+<script type="module" src="/app.js"></script>
+<!-- pb-shell --><a class="pb-shell" href="https://github.com/anhquanbd2021/ai-ui-coding-methods" title="ai-ui-coding-methods — an Article Playbook demo (view source)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2" y="2" width="9" height="9" rx="2" fill="#2dd4bf"/><rect x="13" y="2" width="9" height="9" rx="2" fill="#2dd4bf" opacity=".45"/><rect x="2" y="13" width="9" height="9" rx="2" fill="#2dd4bf" opacity=".45"/><rect x="13" y="13" width="9" height="9" rx="4.5" fill="#2dd4bf"/></svg><b>ai-ui-coding-methods</b><i>DEMO</i></a><!-- pb-shell --><!-- pb-back --><a class="pb-back" id="pb-back" href="https://github.com/anhquanbd2021/ai-ui-coding-methods" title="Back to the article — ai-ui-coding-methods">← Article <i>PLAYBOOK</i></a><script>(function(){var a=document.getElementById('pb-back');if(!a)return;var h=location.hostname;if(/^(localhost|127\.0\.0\.1|192\.168\.|10\.|172\.(1[6-9]|2[0-9]|3[01])\.)/.test(h)){a.href='//'+h+':'+(/^(localhost|127\.0\.0\.1)$/.test(h)?'1234':'30082')+'/microsites/article.html?slug=ai-ui-coding-methods';}})();</script><!-- pb-back --></body>
+</html>

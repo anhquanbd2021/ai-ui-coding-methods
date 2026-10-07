@@ -1,0 +1,13 @@
+{
+  "id": "checkout-modal",
+  "title": "Checkout modal",
+  "brief": "Checkout modal with a title, an order summary card, a promo-code field, a pay button, and a cancel link.",
+  "elements": [
+    { "id": "modal-title", "type": "heading", "slot": "header", "label": "Checkout" },
+    { "id": "summary", "type": "card", "slot": "main", "label": "Order summary" },
+    { "id": "promo", "type": "field", "slot": "main", "label": "Promo code" },
+    { "id": "pay", "type": "button", "slot": "footer", "label": "Pay now", "intent": "primary" },
+    { "id": "cancel", "type": "text", "slot": "footer", "label": "Cancel" }
+  ],
+  "wireframe": { "slotOrder": ["header", "main", "footer"] }
+}

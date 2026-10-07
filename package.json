@@ -1,0 +1,16 @@
+{
+  "name": "ai-ui-coding-methods-demo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Prompt-Mode Lab — run the same UI request through seven input modes and measure the fidelity jump per mode.",
+  "scripts": {
+    "start": "node app/server.js",
+    "report": "node scripts/mode-report.mjs",
+    "test": "node --test \"test/*.test.mjs\"",
+    "check": "npm test && npm run report"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

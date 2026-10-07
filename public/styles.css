@@ -1,0 +1,388 @@
+/* ============================================================
+   Prompt-Mode Lab — "Ink & Circuit: Instrument Readout"
+   Implements DESIGN_SPEC.md. Dark theme is default; a mapped
+   light theme ships via prefers-color-scheme. Zero dependencies.
+   ============================================================ */
+
+:root{
+  color-scheme:dark;
+
+  /* Spacing — 4px base scale */
+  --s1:4px;  --s2:8px;  --s3:12px; --s4:16px;
+  --s5:24px; --s6:32px; --s7:48px; --s8:64px;
+
+  /* Color — dark (default) */
+  --bg:            #0B1217;
+  --surface:       #131E26;
+  --inset:         #0D151B;
+  --row:           #101A21;
+  --border:        #263845;
+  --border-strong: #33505F;
+  --text:          #E9F1F3;
+  --text-dim:      #9DB1BC;
+  --accent:        #5EEAD4;
+  --accent-ink:    #06231E;
+  --accent-soft:   #16303A;
+  --accent-line:   #2F6E62;
+  --link:          #8FD3C7;
+  --link-hover:    #5EEAD4;
+  --pass-bg:#48A080; --pass-fg:#06231E;
+  --warn-bg:#EBB042; --warn-fg:#241A05;
+  --fail-bg:#C0504D; --fail-fg:#FFFFFF;
+  --info-bg:#3D5A72; --info-fg:#F0F6F9;
+  --fail-text:     #E88F8C;
+  --fix-text:      #5EEAD4;
+  --focus:         #5EEAD4;
+  --warning-edge:  #EBB042;
+  --eyebrow-fg:    var(--accent);
+  --row-hover:     rgba(255,255,255,.03);
+  --tag-bg:        var(--border);
+  --tag-line:      transparent;
+
+  /* Type */
+  --font-body:"Space Grotesk","Segoe UI",system-ui,-apple-system,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  --fs-eyebrow:0.75rem;  --fs-xs:0.8125rem; --fs-sm:0.875rem;
+  --fs-body:1rem;        --fs-lede:1.125rem; --fs-h3:1.125rem;
+  --fs-h2:1.375rem;      --fs-h1:clamp(2rem,5.2vw,3.25rem);
+  --lh-tight:1.1; --lh-body:1.6;
+  --fw-body:400; --fw-label:600; --fw-head:700;
+
+  /* Radius, shadow, motion */
+  --r-1:4px;  --r-2:6px;   --r-3:8px;  --r-4:12px;  --r-pill:999px;
+  --sh-1:0 1px 2px rgba(0,0,0,.25);
+  --sh-2:0 8px 24px rgba(0,0,0,.35);
+  --dur-1:120ms; --dur-2:180ms; --dur-3:280ms;
+  --ease-out:cubic-bezier(.2,.7,.3,1);
+  --ease-in:cubic-bezier(.5,0,.8,.4);
+  --ease-press:cubic-bezier(.3,1.4,.4,1);
+}
+
+@media (prefers-color-scheme: light){
+  :root{
+    color-scheme:light dark;
+    --bg:#F5F7F7; --surface:#FFFFFF; --inset:#EDF1F2; --row:#F0F4F5;
+    --border:#D4DEE2; --border-strong:#9FB4BE;
+    --text:#1E2A32; --text-dim:#4E636E;
+    --accent:#0E7C6B; --accent-ink:#FFFFFF; --accent-soft:#D9EEE9;
+    --accent-line:#0E7C6B; --link:#0E6B5D; --link-hover:#0E7C6B;
+    --pass-bg:#D8EBE1; --pass-fg:#1B4D3A;
+    --warn-bg:#F8E6BC; --warn-fg:#6B4A08;
+    --fail-bg:#F1D5D3; --fail-fg:#7A2624;
+    --info-bg:#DCE8F0; --info-fg:#24506B;
+    --fail-text:#A33A36; --fix-text:#0E7C6B;
+    --focus:#0E7C6B; --warning-edge:#B87E12;
+    --eyebrow-fg:var(--link);
+    --row-hover:var(--row);
+    --tag-bg:var(--inset);
+    --tag-line:var(--border);
+    --sh-1:0 1px 2px rgba(20,42,54,.10);
+    --sh-2:0 8px 24px rgba(20,42,54,.16);
+  }
+}
+
+/* ---------- Base ---------- */
+
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);
+  font-family:var(--font-body);font-size:var(--fs-body);
+  font-weight:var(--fw-body);line-height:var(--lh-body);
+  -webkit-font-smoothing:antialiased}
+h1,h2,h3,p,ul,ol,pre{margin:0}
+ul,ol{padding-left:1.4em}
+button,select,input{font:inherit;color:inherit}
+img,svg,canvas{max-width:100%}
+p{max-width:70ch}
+strong{font-weight:var(--fw-head)}
+
+a{color:var(--link);text-underline-offset:3px;
+  transition:color var(--dur-1) var(--ease-out)}
+a:hover{color:var(--link-hover)}
+
+/* Global focus ring — 2px + 2px offset on every interactive element;
+   :focus matches :focus-visible so the fallback is identical. */
+:focus{outline:2px solid var(--focus);outline-offset:2px}
+
+/* ---------- Container ---------- */
+
+main{max-width:1120px;margin:auto;
+  padding:var(--s7) var(--s5) max(96px,var(--s8))}
+
+/* ---------- Nav — row of pill tabs (z-scale: 10) ---------- */
+
+nav[aria-label="Primary"]{display:flex;flex-wrap:wrap;gap:var(--s2);
+  margin-bottom:var(--s7);position:relative;z-index:10}
+nav[aria-label="Primary"] a{display:inline-block;padding:8px 16px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r-pill);color:var(--text-dim);
+  font-size:var(--fs-sm);font-weight:var(--fw-label);text-decoration:none;
+  transition:color var(--dur-1) var(--ease-out),
+    background-color var(--dur-1) var(--ease-out),
+    border-color var(--dur-1) var(--ease-out)}
+nav[aria-label="Primary"] a:hover{border-color:var(--border-strong);color:var(--text)}
+nav[aria-label="Primary"] a[aria-current="page"]{background:var(--accent);
+  color:var(--accent-ink);border-color:transparent}
+nav[aria-label="Primary"] a[aria-current="page"]:hover{color:var(--accent-ink);
+  border-color:transparent}
+
+/* ---------- Typography ---------- */
+
+.eyebrow{margin:0 0 var(--s3);font-size:var(--fs-eyebrow);
+  font-weight:var(--fw-head);text-transform:uppercase;
+  letter-spacing:.12em;color:var(--eyebrow-fg)}
+h1{font-size:var(--fs-h1);font-weight:var(--fw-head);
+  line-height:var(--lh-tight);letter-spacing:-.02em;
+  max-width:14ch;margin:0 0 var(--s4)}
+h2{font-size:var(--fs-h2);font-weight:var(--fw-head);line-height:var(--lh-tight)}
+h3{font-size:var(--fs-h3);font-weight:var(--fw-head);line-height:var(--lh-tight)}
+.lede{font-size:var(--fs-lede);line-height:var(--lh-body);
+  color:var(--text-dim);max-width:68ch}
+.muted{color:var(--text-dim);font-size:var(--fs-sm)}
+
+/* ---------- Hero ---------- */
+
+.hero{display:flex;flex-direction:column;gap:var(--s5);margin-bottom:var(--s8)}
+@media(min-width:900px){
+  .hero{flex-direction:row;align-items:flex-end}
+  .hero>div{flex:3 1 0;min-width:0;max-width:68ch}
+  .hero>.warning{flex:2 1 0;min-width:0;max-width:38ch}
+}
+header:not(.hero){margin-bottom:var(--s7)}
+header:not(.hero)>.warning{margin-top:var(--s5)}
+
+/* .warning — callout, not an alert */
+.warning{max-width:40ch;background:var(--row);
+  border:1px solid var(--border);border-left:3px solid var(--warning-edge);
+  border-radius:var(--r-3);padding:var(--s4);
+  font-size:var(--fs-sm);color:var(--text-dim)}
+.warning strong{color:var(--text)}
+
+/* ---------- Workspace grids ---------- */
+
+.workspace{display:grid;grid-template-columns:1fr;gap:var(--s5)}
+.workspace+.workspace{margin-top:var(--s5)}
+@media(min-width:821px){
+  .workspace{grid-template-columns:minmax(300px,5fr) minmax(300px,6fr)}
+  /* inside .guide-section, .workspace is a 2-column card grid */
+  .guide-section .workspace{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+/* ---------- Panel — ruled surface ---------- */
+
+.panel{min-width:0;background:var(--surface);
+  border:1px solid var(--border);border-radius:var(--r-4);
+  padding:var(--s5);box-shadow:var(--sh-1)}
+/* sibling items inside a panel gap --s3 */
+.panel>*+*{margin-top:var(--s3)}
+.panel h2{margin:0 0 var(--s4)}
+.section-heading{display:flex;justify-content:space-between;
+  align-items:flex-start;gap:var(--s3)}
+
+/* ---------- Controls ---------- */
+
+.controls label{display:block;margin:var(--s4) 0 var(--s2);
+  font-size:var(--fs-sm);font-weight:var(--fw-label)}
+#fixture{display:block;width:100%;margin-top:var(--s2);
+  background:var(--inset);color:var(--text);
+  border:1px solid var(--border);border-radius:var(--r-3);
+  padding:10px 12px;font-family:var(--font-body);font-size:var(--fs-body);
+  font-weight:var(--fw-body);
+  transition:border-color var(--dur-2) var(--ease-out)}
+#fixture:hover{border-color:var(--border-strong)}
+
+.modes{display:flex;flex-direction:column;gap:var(--s2);margin:var(--s4) 0}
+.mode-btn{display:flex;align-items:center;justify-content:space-between;
+  gap:10px;width:100%;padding:12px 14px;text-align:left;cursor:pointer;
+  background:var(--inset);color:var(--text);
+  border:1px solid var(--border);border-radius:var(--r-3);
+  font-size:var(--fs-sm);font-weight:var(--fw-label);
+  transition:color var(--dur-2) var(--ease-out),
+    background-color var(--dur-2) var(--ease-out),
+    border-color var(--dur-2) var(--ease-out),
+    transform var(--dur-2) var(--ease-out)}
+.mode-btn:hover{border-color:var(--border-strong);transform:translateY(-1px)}
+.mode-btn:active{transform:scale(.99)}
+/* .active differs by border + fill + weight — never color alone */
+.mode-btn.active{background:var(--accent-soft);border-color:var(--accent-line);
+  color:var(--text);font-weight:var(--fw-head)}
+.mode-btn .tag{flex:none;font-family:var(--font-mono);
+  font-size:var(--fs-eyebrow);font-weight:var(--fw-label);
+  text-transform:uppercase;letter-spacing:.06em;
+  background:var(--tag-bg);color:var(--text-dim);
+  border:1px solid var(--tag-line);border-radius:var(--r-pill);padding:2px 8px}
+
+/* ---------- Primary buttons ---------- */
+
+button.primary{width:100%;padding:12px 18px;cursor:pointer;
+  background:var(--accent);color:var(--accent-ink);border:0;
+  border-radius:var(--r-3);font-size:var(--fs-body);font-weight:var(--fw-head);
+  transition:filter var(--dur-1) var(--ease-out),
+    transform var(--dur-2) var(--ease-press),
+    background-color var(--dur-1) var(--ease-out)}
+button.primary:hover{filter:brightness(1.08)}
+button.primary:active{transform:scale(.98)}
+button.primary:focus-visible{outline-offset:3px}
+/* compact trailing actions in .section-heading (width:auto is inline) */
+.section-heading button.primary{min-height:40px;padding:9px 14px;
+  font-size:var(--fs-sm)}
+
+/* ---------- Badge — inline status pill ---------- */
+
+.badge{display:inline-block;padding:3px 12px;white-space:nowrap;
+  border-radius:var(--r-pill);border:1px solid var(--border);
+  background:var(--inset);color:var(--text-dim);
+  font-family:var(--font-mono);font-size:var(--fs-eyebrow);
+  font-weight:var(--fw-head);text-transform:uppercase;letter-spacing:.08em;
+  transition:color var(--dur-2) var(--ease-out),
+    background-color var(--dur-2) var(--ease-out),
+    border-color var(--dur-2) var(--ease-out)}
+.badge.pass{background:var(--pass-bg);color:var(--pass-fg);border-color:var(--pass-bg)}
+.badge.warn{background:var(--warn-bg);color:var(--warn-fg);border-color:var(--warn-bg)}
+.badge.fail{background:var(--fail-bg);color:var(--fail-fg);border-color:var(--fail-bg)}
+.badge.info{background:var(--info-bg);color:var(--info-fg);border-color:var(--info-bg)}
+
+/* ---------- Score bars — instrument readouts ---------- */
+
+.scores{display:grid;grid-template-columns:110px 1fr 52px;
+  gap:8px 12px;align-items:center;margin:var(--s3) 0}
+.scores .lbl{font-family:var(--font-mono);font-size:var(--fs-xs);
+  color:var(--text-dim)}
+.scores canvas{display:block;width:100%;height:14px;
+  border:1px solid var(--border);border-radius:var(--r-1)}
+.scores .val{font-family:var(--font-mono);font-size:var(--fs-xs);
+  font-weight:var(--fw-head);text-align:right;color:var(--text);
+  font-variant-numeric:tabular-nums}
+
+/* ---------- Spec list ---------- */
+
+.spec-list{list-style:none;padding:0;display:flex;flex-direction:column;
+  gap:var(--s2)}
+.spec-el{background:var(--row);border:1px solid var(--border);
+  border-radius:var(--r-3);padding:10px 12px;
+  transition:border-color var(--dur-2) var(--ease-out)}
+.spec-el:hover{border-color:var(--border-strong)}
+.spec-el .row{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.spec-el .eid{font-family:var(--font-mono);font-size:var(--fs-sm);
+  font-weight:var(--fw-head);overflow-wrap:anywhere}
+.spec-el .etype{font-size:var(--fs-xs);color:var(--text-dim)}
+canvas.swatch{width:16px;height:16px;flex:none;
+  border:1px solid var(--border);border-radius:var(--r-1)}
+.chip{font-family:var(--font-mono);font-size:var(--fs-xs);
+  background:var(--inset);border-radius:var(--r-1);padding:2px 7px;
+  color:var(--text-dim);overflow-wrap:anywhere}
+.spec-el>.muted{margin-top:6px;font-size:var(--fs-xs)}
+
+/* ---------- Failures ---------- */
+
+.fails{margin-top:var(--s3);font-size:var(--fs-sm);color:var(--fail-text)}
+.fails:empty{display:none}
+.fails:not(:empty){border-top:1px solid var(--border);padding-top:var(--s3)}
+.fails strong{color:var(--fail-text);font-weight:var(--fw-label)}
+.fails div{padding:2px 0}
+
+/* ---------- Comparison table ---------- */
+
+.table-wrap{overflow-x:auto;border:1px solid var(--border);
+  border-radius:var(--r-3)}
+/* on the guide, .table-wrap doubles as a panel with --s4 padding */
+.table-wrap.panel{padding:var(--s4)}
+table{border-collapse:collapse;width:100%;font-size:var(--fs-sm)}
+th{padding:10px 12px;background:var(--inset);color:var(--text-dim);
+  font-size:var(--fs-eyebrow);font-weight:var(--fw-label);
+  text-transform:uppercase;letter-spacing:.1em;text-align:left;
+  border-bottom:1px solid var(--border)}
+td{padding:10px 12px;text-align:left;vertical-align:top;
+  border-bottom:1px solid var(--border)}
+.table-wrap tr:last-child td{border-bottom:0}
+#side-table th:nth-child(n+2){text-align:right}
+td.num{font-family:var(--font-mono);font-size:var(--fs-sm);
+  font-weight:var(--fw-head);text-align:right;
+  font-variant-numeric:tabular-nums}
+tbody tr:hover td{background:var(--row-hover)}
+/* best row: fill + inset edge — a color-plus-shape cue */
+tbody tr.best td{background:var(--accent-soft)}
+tbody tr.best td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
+
+/* ---------- History + drift lists ---------- */
+
+.history{list-style:none;padding:0;display:flex;flex-direction:column;
+  gap:var(--s2);font-family:var(--font-mono);font-size:var(--fs-xs)}
+.history li{background:var(--row);border:1px solid var(--border);
+  border-radius:var(--r-3);padding:10px 12px;
+  transition:border-color var(--dur-2) var(--ease-out)}
+.history li:hover{border-color:var(--border-strong)}
+.history .fix-note{margin-top:4px;font-size:var(--fs-xs);color:var(--fix-text)}
+
+.drifts{list-style:none;padding:0;display:flex;flex-direction:column;
+  gap:var(--s2);font-family:var(--font-mono);font-size:var(--fs-xs)}
+.drifts li{background:var(--row);border:1px solid var(--border);
+  border-left:3px solid var(--fail-bg);border-radius:var(--r-2);
+  padding:8px 10px}
+/* JS sets border-left:#48A080 inline on the no-drift item — do not fight it */
+
+/* ---------- Code ---------- */
+
+code{font-family:var(--font-mono);font-size:var(--fs-xs);
+  background:var(--inset);border-radius:var(--r-1);padding:1px 6px;
+  overflow-wrap:anywhere}
+.code-block{display:block;background:var(--inset);
+  border:1px solid var(--border);border-radius:var(--r-3);
+  padding:var(--s4);font-family:var(--font-mono);font-size:var(--fs-sm);
+  line-height:var(--lh-body);overflow-x:auto;max-width:60ch}
+
+/* ---------- Guide ---------- */
+
+.guide-section{margin-top:var(--s7)}
+.guide-section>*+*{margin-top:var(--s4)}
+.guide-section>.eyebrow+h2{margin-top:0}
+article.panel h3{margin:0 0 var(--s3);font-size:var(--fs-h3);
+  font-weight:var(--fw-head)}
+.guide-section ul li+li{margin-top:var(--s2)}
+.try{font-weight:var(--fw-label)}
+
+/* ---------- Footer line ---------- */
+
+main>p:last-child{max-width:none;margin-top:var(--s7);
+  padding-top:var(--s4);border-top:1px solid var(--border);
+  font-size:var(--fs-sm);color:var(--text-dim);text-align:center}
+
+/* ---------- Entrance — panels only, once on load ---------- */
+
+@keyframes panel-in{
+  from{opacity:0;transform:translateY(8px)}
+  to{opacity:1;transform:none}
+}
+@media (prefers-reduced-motion: no-preference){
+  .panel{animation:panel-in var(--dur-3) var(--ease-out) both}
+  .workspace>.panel:nth-child(2){animation-delay:40ms}
+  .workspace>.panel:nth-child(3){animation-delay:80ms}
+  .workspace>.panel:nth-child(4){animation-delay:120ms}
+  .workspace>.panel:nth-child(5){animation-delay:160ms}
+  .workspace>.panel:nth-child(6){animation-delay:200ms}
+}
+
+/* ---------- Responsive ---------- */
+
+@media(max-width:760px){
+  main{padding-left:var(--s4);padding-right:var(--s4)}
+}
+@media(max-width:480px){
+  main{padding-left:var(--s3);padding-right:var(--s3)}
+  .panel{padding:var(--s4)}
+  .section-heading{flex-direction:column;align-items:flex-start}
+}
+
+/* ---------- Reduced motion ----------
+   Kill transitions and the entrance animation; remove hover
+   translateY/scale. Color changes stay — instant feedback, not
+   motion. pb-shell.css handles its own. Scoped to main so the
+   pb-shell pill is untouched. */
+
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  main,main *{transition-duration:.01ms !important;animation:none !important}
+  .mode-btn:hover{transform:none}
+  .mode-btn:active{transform:none}
+  button.primary:active{transform:none}
+}

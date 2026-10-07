@@ -1,0 +1,78 @@
+{
+  "request": "settings-page",
+  "mode": "components",
+  "elements": [
+    {
+      "id": "title",
+      "type": "heading",
+      "slot": "header",
+      "label": "Account settings",
+      "intent": null,
+      "fontPx": 24,
+      "fg": "#1E2A32",
+      "bg": "#FAFBFC",
+      "padPx": 16,
+      "radiusPx": 0
+    },
+    {
+      "id": "profile-card",
+      "type": "card",
+      "slot": "main",
+      "label": "Profile",
+      "intent": null,
+      "fontPx": 14,
+      "fg": "#1E2A32",
+      "bg": "#FFFFFF",
+      "padPx": 24,
+      "radiusPx": 8
+    },
+    {
+      "id": "save",
+      "type": "button",
+      "slot": "main",
+      "label": "Save changes",
+      "intent": "primary",
+      "fontPx": 14,
+      "fg": "#FFFFFF",
+      "bg": "#245B78",
+      "padPx": 12,
+      "radiusPx": 8
+    },
+    {
+      "id": "digest",
+      "type": "field",
+      "slot": "aside",
+      "label": "Email digest",
+      "intent": null,
+      "fontPx": 14,
+      "fg": "#1E2A32",
+      "bg": "#FFFFFF",
+      "padPx": 12,
+      "radiusPx": 4
+    },
+    {
+      "id": "danger-note",
+      "type": "text",
+      "slot": "footer",
+      "label": "Deleting your account is permanent.",
+      "intent": null,
+      "fontPx": 14,
+      "fg": "#1E2A32",
+      "bg": "#FAFBFC",
+      "padPx": 8,
+      "radiusPx": 0
+    },
+    {
+      "id": "delete",
+      "type": "button",
+      "slot": "footer",
+      "label": "Delete account",
+      "intent": "danger",
+      "fontPx": 14,
+      "fg": "#FFFFFF",
+      "bg": "#8C2B36",
+      "padPx": 12,
+      "radiusPx": 8
+    }
+  ]
+}
